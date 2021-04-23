@@ -289,13 +289,13 @@ if [ "$BYPASS_VLC_SRC_CHECKS" = 1 ]; then
 else
     diagnostic "VLC sources: Checking TESTED_HASH and patches presence"
     diagnostic "NOTE: checks can be bypass by adding '-b' option to this script."
-    cd vlc
-    git cat-file -e ${TESTED_HASH} 2> /dev/null || \
-        fail "Error: Your vlc checkout does not contain the latest tested commit: ${TESTED_HASH}"
-    for patch_file in ../libvlc/patches/vlc3/*.patch; do
-        check_patch_is_applied "$patch_file"
-    done
-    cd ..
+    #cd vlc
+    #git cat-file -e ${TESTED_HASH} 2> /dev/null || \
+    #    fail "Error: Your vlc checkout does not contain the latest tested commit: ${TESTED_HASH}"
+    #for patch_file in ../libvlc/patches/vlc3/*.patch; do
+    #    check_patch_is_applied "$patch_file"
+    #done
+    #cd ..
 fi
 
 ############
