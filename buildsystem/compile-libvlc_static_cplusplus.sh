@@ -137,6 +137,7 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
 esac
 NDK_TOOLCHAIN_DIR=${ANDROID_NDK}/toolchains/llvm/prebuilt/${host_tag}-x86_64
 NDK_TOOLCHAIN_PATH=${NDK_TOOLCHAIN_DIR}/bin
+NDK_LIB_DIR=${ANDROID_NDK}/sources/cxx-stl/llvm-libc++/libs/${ANDROID_ABI}
 # Add the NDK toolchain to the PATH, needed both for contribs and for building
 # stub libraries
 CROSS_TOOLS=${NDK_TOOLCHAIN_PATH}/${TARGET_TUPLE}-
@@ -165,6 +166,9 @@ fi
 VLC_CFLAGS="${VLC_CFLAGS} -fPIC -fdata-sections -ffunction-sections -funwind-tables \
  -fstack-protector-strong -no-canonical-prefixes"
 VLC_CXXFLAGS="-fexceptions -frtti"
+
+EXTRA_LDFLAGS="-L${NDK_LIB_DIR} -lc++abi -lc++_static"
+VLC_LDFLAGS="${EXTRA_LDFLAGS}"
 
 # Release or not?
 if [ "$AVLC_RELEASE" = 1 ]; then
@@ -479,6 +483,7 @@ else
 
     echo "EXTRA_CFLAGS=${VLC_CFLAGS}" >> config.mak
     echo "EXTRA_CXXFLAGS=${VLC_CXXFLAGS}" >> config.mak
+    echo "EXTRA_LDFLAGS=${EXTRA_LDFLAGS}" >> config.mak
     echo "CC=${CROSS_CLANG}" >> config.mak
     echo "CXX=${CROSS_CLANG}++" >> config.mak
     echo "AR=${CROSS_TOOLS}ar" >> config.mak
@@ -524,7 +529,7 @@ if [ ${ANDROID_API} -lt "21" ] ; then
     # force uselocale using libandroid_support since it's present in libc++
     export ac_cv_func_uselocale=yes
 
-    VLC_LDFLAGS="-landroid_support"
+    VLC_LDFLAGS="${VLC_LDFLAGS} -L${NDK_LIB_DIR} -landroid_support"
 fi
 
 # always use fixups for search.h and tdestroy
@@ -680,7 +685,7 @@ include $(BUILD_SHARED_LIBRARY)
 EOF
 
 $NDK_BUILD -C $VLC_OUT_PATH/.. \
-    APP_STL="c++_shared" \
+    APP_STL="c++_static" \
     APP_CPPFLAGS="-frtti -fexceptions" \
     VLC_SRC_DIR="$VLC_SRC_DIR" \
     VLC_BUILD_DIR="$VLC_BUILD_DIR" \
